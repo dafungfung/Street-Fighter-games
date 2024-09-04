@@ -1,0 +1,86 @@
+import pygame
+import sys
+
+# 初始化 Pygame
+pygame.init()
+
+# 設定遊戲視窗大小
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("快打旋風小遊戲")
+
+# 設定顏色
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+
+# 設定角色參數
+PLAYER_WIDTH, PLAYER_HEIGHT = 50, 100
+player1 = pygame.Rect(100, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
+player2 = pygame.Rect(650, HEIGHT - PLAYER_HEIGHT, PLAYER_WIDTH, PLAYER_HEIGHT)
+
+# 設定速度和生命值
+PLAYER_SPEED = 5
+player1_health = 100
+player2_health = 100
+
+# 設定字體
+font = pygame.font.SysFont(None, 48)
+
+# 設定時鐘
+clock = pygame.time.Clock()
+
+# 遊戲主迴圈
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    # 取得鍵盤輸入
+    keys = pygame.key.get_pressed()
+
+    # 玩家1控制 (WASD)
+    if keys[pygame.K_a] and player1.left > 0:
+        player1.x -= PLAYER_SPEED
+    if keys[pygame.K_d] and player1.right < WIDTH:
+        player1.x += PLAYER_SPEED
+    if keys[pygame.K_w] and player1.top > 0:
+        player1.y -= PLAYER_SPEED
+    if keys[pygame.K_s] and player1.bottom < HEIGHT:
+        player1.y += PLAYER_SPEED
+
+    # 玩家2控制 (方向鍵)
+    if keys[pygame.K_LEFT] and player2.left > 0:
+        player2.x -= PLAYER_SPEED
+    if keys[pygame.K_RIGHT] and player2.right < WIDTH:
+        player2.x += PLAYER_SPEED
+    if keys[pygame.K_UP] and player2.top > 0:
+        player2.y -= PLAYER_SPEED
+    if keys[pygame.K_DOWN] and player2.bottom < HEIGHT:
+        player2.y += PLAYER_SPEED
+
+    # 檢測攻擊 (空白鍵 / 右Ctrl)
+    if keys[pygame.K_SPACE] and player1.colliderect(player2):
+        player2_health -= 1  # 玩家1攻擊玩家2
+    if keys[pygame.K_RCTRL] and player2.colliderect(player1):
+        player1_health -= 1  # 玩家2攻擊玩家1
+
+    # 填充背景
+    screen.fill(WHITE)
+
+    # 繪製玩家
+    pygame.draw.rect(screen, RED, player1)
+    pygame.draw.rect(screen, BLUE, player2)
+
+    # 顯示生命值
+    player1_health_text = font.render(f'P1 Health: {player1_health}', True, RED)
+    player2_health_text = font.render(f'P2 Health: {player2_health}', True, BLUE)
+    screen.blit(player1_health_text, (20, 20))
+    screen.blit(player2_health_text, (WIDTH - player2_health_text.get_width() - 20, 20))
+
+    # 更新畫面
+    pygame.display.flip()
+
+    # 控制遊戲更新速度
+    clock.tick(60)
